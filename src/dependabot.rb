@@ -26,7 +26,7 @@ if directory.empty?
 end
 
 # Define the target branch
-target_branch = ENV["INPUT_TARGET_BRANCH"]
+target_branch = ENV["GITHUB_HEAD_REF"]
 if target_branch.empty?
   target_branch=nil
 end
@@ -63,7 +63,7 @@ unless dependency_token.empty?
 end
 
 def update(source, credentials_repository, credentials_dependencies)
-
+  available_updates = []
   # Hardcode the package manager to terraform
   package_manager = "terraform"
 
@@ -117,39 +117,22 @@ def update(source, credentials_repository, credentials_dependencies)
     updated_deps = checker.updated_dependencies(
       requirements_to_unlock: requirements_to_unlock
     )
-
-    #####################################
-    # Generate updated dependency files #
-    #####################################
-    print "  - Updating #{dep.name} (from #{dep.version})…"
-    updater = Dependabot::FileUpdaters.for_package_manager(package_manager).new(
-      dependencies: updated_deps,
-      dependency_files: files,
-      credentials: credentials_repository,
-    )
-
-    updated_files = updater.updated_dependency_files
-
-    ########################################
-    # Create a pull request for the update #
-    ########################################
-    pr_creator = Dependabot::PullRequestCreator.new(
-      source: source,
-      base_commit: commit,
-      dependencies: updated_deps,
-      files: updated_files,
-      credentials: credentials_repository,
-      label_language: false,
-    )
-    pull_request = pr_creator.create
-    puts "  - submitted"
-
-    next unless pull_request
-
+    updated_deps.each do |upd_dep|
+      if upd_dep.requirements[0][:source][:type] == "registry" then
+        print " - Update available for: #{upd_dep.requirements[0][:source][:module_identifier]} #{upd_dep.previous_version} -> #{upd_dep.version}\n"
+        upd_str = "Update available for: #{upd_dep.requirements[0][:source][:module_identifier]} #{upd_dep.previous_version} -> #{upd_dep.version}"
+      else
+        print " - Update available for: #{upd_dep.requirements[0][:source][:url]} #{upd_dep.previous_version} -> #{upd_dep.version}\n"
+        upd_str = "Update available for: #{upd_dep.requirements[0][:source][:url]} #{upd_dep.previous_version} -> #{upd_dep.version}"
+      end
+      available_updates.push(upd_str)
+    end
   end
+  return available_updates
 end
 
 puts "  - Fetching dependency files for #{repo_name}"
+available_updates = []
 directory.split("\n").each do |dir|
   puts "  - Checking #{dir} ..."
 
@@ -159,7 +142,12 @@ directory.split("\n").each do |dir|
     directory: dir.strip,
     branch: target_branch,
   )
-  update source, credentials_repository, credentials_dependencies
-end
+  available_updates.push(update(source, credentials_repository, credentials_dependencies))
 
+  if available_updates.length > 0 then
+    print "\n\n Updates available for the following:\n"
+    print available_updates.join("\n")
+  end
+end
+puts ENV["GITHUB_REPOSITORY"]
 puts "  - Done"
