@@ -158,7 +158,6 @@ directory.split("\n").each do |dir|
       :sort => 'updated',
       :direction => 'desc'
     })
-    puts pr_comments.inspect
     comment_id = 0
     if pr_comments.length > 0 then
       pr_comments.each do |comment|
@@ -174,8 +173,6 @@ directory.split("\n").each do |dir|
     else
       client.add_comment(ENV["GITHUB_REPOSITORY"], gh_context['event']['number'], comment_body)
     end
-
-
     print available_updates.join("\n")
   end
 end
