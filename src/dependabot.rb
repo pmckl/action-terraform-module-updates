@@ -152,6 +152,9 @@ directory.split("\n").each do |dir|
     pr_comment = "# Available updates for the following modules used in this repository:\n\n #{available_updates.join("\n")}"
 
     client = Octokit::Client.new(:access_token => ENV["INPUT_TOKEN"])
+
+    pr_comments = client.issue_comments(ENV["GITHUB_REPOSITORY"], gh_context['event']['number'])
+    puts pr_comments
     client.add_comment(ENV["GITHUB_REPOSITORY"], gh_context['event']['number'], pr_comment)
 
 
