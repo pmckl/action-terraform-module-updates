@@ -31,7 +31,8 @@ inputs:
 
 runs:
   using: 'docker'
-  image: 'docker://pmckl/action-terraform-module-update'
+  #image: 'docker://pmckl/action-terraform-module-update'
+  image: 'Dockerfile'
 branding:
   icon: 'package'
   color: 'orange'

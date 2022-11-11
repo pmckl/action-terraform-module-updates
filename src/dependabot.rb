@@ -149,5 +149,5 @@ directory.split("\n").each do |dir|
     print available_updates.join("\n")
   end
 end
-puts ENV["GITHUB_REPOSITORY"]
+puts ENV["INPUT_GH_CONTEXT"]
 puts "  - Done"
