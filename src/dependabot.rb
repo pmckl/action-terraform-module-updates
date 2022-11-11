@@ -8,7 +8,8 @@ require "dependabot/update_checkers"
 require "dependabot/file_updaters"
 require "dependabot/pull_request_creator"
 require "dependabot/omnibus"
-
+require 'json'
+require 'octokit'
 
 # Utilize the github env variable per default
 repo_name = ENV["GITHUB_REPOSITORY"]
@@ -28,7 +29,8 @@ end
 # Define the target branch
 target_branch = ENV["GITHUB_HEAD_REF"]
 if target_branch.empty?
-  target_branch=nil
+  print "This action is only supported for pull requests!"
+  exit(1)
 end
 
 # Token to be used for fetching repository files / creating pull requests
@@ -146,8 +148,32 @@ directory.split("\n").each do |dir|
 
   if available_updates.length > 0 then
     print "\n\n Updates available for the following:\n"
+    first_line = "## Available updates for the following modules used in this repository:\n\n"
+    gh_context = JSON.parse(ENV["INPUT_GH_CONTEXT"]);
+    comment_body = "#{first_line} #{available_updates.join("\n")}"
+
+    client = Octokit::Client.new(:access_token => ENV["INPUT_TOKEN"])
+
+    pr_comments = client.issue_comments(ENV["GITHUB_REPOSITORY"], gh_context['event']['number'],{
+      :sort => 'updated',
+      :direction => 'desc'
+    })
+    comment_id = 0
+    if pr_comments.length > 0 then
+      pr_comments.each do |comment|
+        if comment[":user"][":login"] == "github-actions[bot]" then
+          if comment[":body"].start_with?(first_line) then
+            comment_id = comment[":id"]
+          end
+        end
+      end
+    end
+    if comment_id > 0 then
+      client.update_comment(ENV["GITHUB_REPOSITORY"], comment_id, comment_body)
+    else
+      client.add_comment(ENV["GITHUB_REPOSITORY"], gh_context['event']['number'], comment_body)
+    end
     print available_updates.join("\n")
   end
 end
-puts ENV["GITHUB_REPOSITORY"]
 puts "  - Done"
