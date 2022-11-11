@@ -9,6 +9,7 @@ require "dependabot/file_updaters"
 require "dependabot/pull_request_creator"
 require "dependabot/omnibus"
 require 'json'
+require 'octokit'
 
 # Utilize the github env variable per default
 repo_name = ENV["GITHUB_REPOSITORY"]
@@ -148,7 +149,12 @@ directory.split("\n").each do |dir|
   if available_updates.length > 0 then
     print "\n\n Updates available for the following:\n"
     gh_context = JSON.parse(ENV["INPUT_GH_CONTEXT"]);
-    puts gh_context
+    puts gh_context.event.number
+
+    client = Octokit::Client.new(:access_token => ENV["INPUT_TOKEN"])
+    client.add_comment(ENV["GITHUB_REPOSITORY"], gh_context.event.number, available_updates.join("\n"))
+
+
     print available_updates.join("\n")
   end
 end
