@@ -149,14 +149,13 @@ directory.split("\n").each do |dir|
   if available_updates.length > 0 then
     print "\n\n Updates available for the following:\n"
     gh_context = JSON.parse(ENV["INPUT_GH_CONTEXT"]);
-    puts gh_context['event']['number']
+    pr_comment = "# Available updates for the following modules used in this repository:\n\n #{available_updates.join("\n")}"
 
     client = Octokit::Client.new(:access_token => ENV["INPUT_TOKEN"])
-    client.add_comment(ENV["GITHUB_REPOSITORY"], gh_context['event']['number'], available_updates.join("\n"))
+    client.add_comment(ENV["GITHUB_REPOSITORY"], gh_context['event']['number'], pr_comment)
 
 
     print available_updates.join("\n")
   end
 end
-puts ENV["INPUT_GH_CONTEXT"]
 puts "  - Done"
