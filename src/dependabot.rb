@@ -146,7 +146,7 @@ directory.split("\n").each do |dir|
   )
   available_updates.push(update(source, credentials_repository, credentials_dependencies))
 
-  if !available_updates.?empty then
+  if !available_updates.empty? then
     print "\n\n Updates available for the following:\n"
     first_line = "## Available updates for the following modules used in this repository:\n\n"
     gh_context = JSON.parse(ENV["INPUT_GH_CONTEXT"]);
