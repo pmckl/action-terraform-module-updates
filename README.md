@@ -2,7 +2,7 @@
 
 ## Introduction
 
-tbd
+The purpose of this actions is to run within pull-requests to check if is there an update any module used by your terraform code.
 
 ## License
 
