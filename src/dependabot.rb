@@ -8,7 +8,7 @@ require "dependabot/update_checkers"
 require "dependabot/file_updaters"
 require "dependabot/pull_request_creator"
 require "dependabot/omnibus"
-
+require 'json'
 
 # Utilize the github env variable per default
 repo_name = ENV["GITHUB_REPOSITORY"]
@@ -146,6 +146,8 @@ directory.split("\n").each do |dir|
 
   if available_updates.length > 0 then
     print "\n\n Updates available for the following:\n"
+    gh_context = JSON.parse(ENV["INPUT_GH_CONTEXT"]);
+    puts gh_context
     print available_updates.join("\n")
   end
 end
