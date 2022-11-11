@@ -1,0 +1,36 @@
+---
+name: release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - id: version
+        uses: mathieudutour/github-tag-action@v6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          dry_run: true
+      - name: build container
+        run: docker build -t action-terraform-module-update:${{ steps.version.outputs.new_tag }} .
+      - run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
+      - name: tag and push
+        run: |
+          docker tag action-terraform-module-update:${{ steps.version.outputs.new_tag }} pmckl/action-terraform-module-update:${{ steps.version.outputs.new_tag }}
+          docker push pmckl/action-terraform-module-update:${{ steps.version.outputs.new_tag }}
+      - name: Generate release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create \
+            --title "${{ steps.version.outputs.new_tag }}" \
+            "${{ steps.version.outputs.new_tag }}" \
+            --generate-notes
