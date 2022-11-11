@@ -1,6 +1,6 @@
-name: 'terraform-dependabot'
-description: 'Dependency updater for terraform with HCL 2.0 support (based on dependabot)'
-author: 'patrickjahns'
+name: 'action-terraform-module-updates'
+description: 'Check if there is an update available for the terraform modules used in your repo. (based on dependabot)'
+author: 'pmckl'
 inputs:
   directory:
     description: >
@@ -20,7 +20,7 @@ inputs:
     required: false
   token:
     description: >
-      Auth token used to push the changes back to github and create the pull request with.
+      Auth token used to create pull-request comment.
       [Learn more about creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
     default: ${{ github.token }}
     required: false
@@ -34,7 +34,7 @@ inputs:
 
 runs:
   using: 'docker'
-  image: 'docker://patrickjahns/dependabot-terraform-action'
+  image: 'docker://pmckl/action-terraform-module-updates:latest'
 branding:
   icon: 'package'
   color: 'orange'
