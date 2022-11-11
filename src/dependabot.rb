@@ -28,7 +28,8 @@ end
 # Define the target branch
 target_branch = ENV["GITHUB_HEAD_REF"]
 if target_branch.empty?
-  target_branch=nil
+  print "This action is only supported for pull requests!"
+  exit(1)
 end
 
 # Token to be used for fetching repository files / creating pull requests
