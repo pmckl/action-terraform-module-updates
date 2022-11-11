@@ -154,7 +154,7 @@ directory.split("\n").each do |dir|
     client = Octokit::Client.new(:access_token => ENV["INPUT_TOKEN"])
 
     pr_comments = client.issue_comments(ENV["GITHUB_REPOSITORY"], gh_context['event']['number'])
-    puts pr_comments
+    puts pr_comments.inspect
     client.add_comment(ENV["GITHUB_REPOSITORY"], gh_context['event']['number'], pr_comment)
 
 
