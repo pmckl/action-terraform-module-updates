@@ -148,14 +148,32 @@ directory.split("\n").each do |dir|
 
   if available_updates.length > 0 then
     print "\n\n Updates available for the following:\n"
+    first_line = "## Available updates for the following modules used in this repository:\n\n"
     gh_context = JSON.parse(ENV["INPUT_GH_CONTEXT"]);
-    pr_comment = "# Available updates for the following modules used in this repository:\n\n #{available_updates.join("\n")}"
+    comment_body = "#{first_line} #{available_updates.join("\n")}"
 
     client = Octokit::Client.new(:access_token => ENV["INPUT_TOKEN"])
 
-    pr_comments = client.issue_comments(ENV["GITHUB_REPOSITORY"], gh_context['event']['number'])
+    pr_comments = client.issue_comments(ENV["GITHUB_REPOSITORY"], gh_context['event']['number'],{
+      :sort => 'updated',
+      :direction => 'desc'
+    })
     puts pr_comments.inspect
-    client.add_comment(ENV["GITHUB_REPOSITORY"], gh_context['event']['number'], pr_comment)
+    comment_id = 0
+    if pr_comments.length > 0 then
+      pr_comments.each do |comment|
+        if comment[":user"][":login"] == "github-actions[bot]" then
+          if comment[":body"].start_with?(first_line) then
+            comment_id = comment[":id"]
+          end
+        end
+      end
+    end
+    if comment_id > 0 then
+      client.update_comment(ENV["GITHUB_REPOSITORY"], comment_id, comment_body)
+    else
+      client.add_comment(ENV["GITHUB_REPOSITORY"], gh_context['event']['number'], comment_body)
+    end
 
 
     print available_updates.join("\n")
