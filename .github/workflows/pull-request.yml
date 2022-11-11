@@ -20,4 +20,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           dry_run: true
       - name: build container
-        run: docker build -t action-terraform-module-update:${{ steps.version.outputs.tag }} .
+        run: docker build -t action-terraform-module-update:${{ steps.version.outputs.new_tag }} .

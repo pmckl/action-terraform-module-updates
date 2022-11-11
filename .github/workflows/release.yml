@@ -20,12 +20,12 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           dry_run: true
       - name: build container
-        run: docker build -t action-terraform-module-update:${{ steps.version.outputs.tag }} .
+        run: docker build -t action-terraform-module-update:${{ steps.version.outputs.new_tag }} .
       - run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USER }} --password-stdin
       - name: tag and push
         run: |
-          docker tag action-terraform-module-update:${{ steps.version.outputs.tag }} pmckl/action-terraform-module-update:${{ steps.version.outputs.tag }}
-          docker push pmckl/action-terraform-module-update:${{ steps.version.outputs.tag }}
+          docker tag action-terraform-module-update:${{ steps.version.outputs.new_tag }} pmckl/action-terraform-module-update:${{ steps.version.outputs.new_tag }}
+          docker push pmckl/action-terraform-module-update:${{ steps.version.outputs.new_tag }}
       - name: Generate release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
