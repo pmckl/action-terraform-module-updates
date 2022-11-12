@@ -79,7 +79,7 @@ def update(source, credentials_repository, credentials_dependencies)
       credentials: credentials_repository,
     )
     puts "Parsing dependencies information"
-  rescue StandardError => e
+  rescue DependencyFileNotFound => e
     puts "  - Skipping: nothing terraform related found in #{source[:directory]}!"
     exit(0)
   ensure
@@ -98,7 +98,7 @@ def update(source, credentials_repository, credentials_dependencies)
       source: source,
       credentials: credentials_repository,
     )
-  rescue StandardError => e
+  rescue DependencyFileNotFound => e
     puts "  - Skipping: nothing terraform related found in #{source[:directory]}!"
     exit(0)
   end
