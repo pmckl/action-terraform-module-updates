@@ -82,7 +82,7 @@ def update(source, credentials_repository, credentials_dependencies)
     commit = fetcher.commit
     puts "Parsing dependencies information"
   rescue
-    puts "  - Skipping: nothing terraform related found in #{source[:directory]}!"
+    puts "  - Skipping: nothing terraform related found in!"
     exit(0)
   ensure
     puts " - what happened?"
