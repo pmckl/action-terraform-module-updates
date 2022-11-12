@@ -77,7 +77,7 @@ def update(source, credentials_repository, credentials_dependencies)
       source: source,
       credentials: credentials_repository,
     )
-  rescue Dependabot::DependencyFileNotFound
+  rescue Dependabot::DependencyFileNotFound => e
     puts "  - Skipping: nothing terraform related found in #{source[:directory]}!"
     exit(0)
   end
