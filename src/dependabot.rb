@@ -84,12 +84,16 @@ def update(source, credentials_repository, credentials_dependencies)
   # Parse the dependency files #
   ##############################
   puts "  - Parsing dependencies information"
-  parser = Dependabot::FileParsers.for_package_manager(package_manager).new(
-    dependency_files: files,
-    source: source,
-    credentials: credentials_repository,
-  )
-
+  begin
+    parser = Dependabot::FileParsers.for_package_manager(package_manager).new(
+      dependency_files: files,
+      source: source,
+      credentials: credentials_repository,
+    )
+  rescue Dependabot::DependencyFileNotFound
+    puts "  - Skipping: nothing terraform related found in #{source[:directory]}!"
+    exit(0)
+  end
   dependencies = parser.parse
 
   dependencies.select(&:top_level?).each do |dep|
