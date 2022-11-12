@@ -82,6 +82,8 @@ def update(source, credentials_repository, credentials_dependencies)
   rescue StandardError => e
     puts "  - Skipping: nothing terraform related found in #{source[:directory]}!"
     exit(0)
+  ensure
+    puts " - what happened?"
   end
   files = fetcher.files
   commit = fetcher.commit
