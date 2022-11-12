@@ -73,10 +73,10 @@ def update(source, credentials_repository, credentials_dependencies)
   # Fetch the dependency files #
   ##############################
   begin
-  fetcher = Dependabot::FileFetchers.for_package_manager(package_manager).new(
-    source: source,
-    credentials: credentials_repository,
-  )
+    fetcher = Dependabot::FileFetchers.for_package_manager(package_manager).new(
+      source: source,
+      credentials: credentials_repository,
+    )
   rescue Dependabot::DependencyFileNotFound
     puts "  - Skipping: nothing terraform related found in #{source[:directory]}!"
     exit(0)
