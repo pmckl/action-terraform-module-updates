@@ -72,11 +72,15 @@ def update(source, credentials_repository, credentials_dependencies)
   ##############################
   # Fetch the dependency files #
   ##############################
+  begin
   fetcher = Dependabot::FileFetchers.for_package_manager(package_manager).new(
     source: source,
     credentials: credentials_repository,
   )
-
+  rescue Dependabot::DependencyFileNotFound
+    puts "  - Skipping: nothing terraform related found in #{source[:directory]}!"
+    exit(0)
+  end
   files = fetcher.files
   commit = fetcher.commit
 
@@ -84,16 +88,13 @@ def update(source, credentials_repository, credentials_dependencies)
   # Parse the dependency files #
   ##############################
   puts "  - Parsing dependencies information"
-  begin
-    parser = Dependabot::FileParsers.for_package_manager(package_manager).new(
-      dependency_files: files,
-      source: source,
-      credentials: credentials_repository,
-    )
-  rescue Dependabot::DependencyFileNotFound
-    puts "  - Skipping: nothing terraform related found in #{source[:directory]}!"
-    exit(0)
-  end
+  
+  parser = Dependabot::FileParsers.for_package_manager(package_manager).new(
+    dependency_files: files,
+    source: source,
+    credentials: credentials_repository,
+  )
+  
   dependencies = parser.parse
 
   dependencies.select(&:top_level?).each do |dep|
