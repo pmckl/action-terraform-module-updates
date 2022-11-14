@@ -31,7 +31,7 @@ jobs:
           docker push pmckl/action-terraform-module-updates:latest
       - name: Patch action.yaml
         runs: |
-          export IMG_VERSION="pmckl/action-terraform-module-updates:${{ steps.version.outputs.new_tag }}"
+          export IMG_VERSION="docker://pmckl/action-terraform-module-updates:${{ steps.version.outputs.new_tag }}"
           yq -e -i '.runs.image=env(IMG_VERSION)' action.yml
       - name: Commit
         run: |
