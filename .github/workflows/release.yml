@@ -29,7 +29,16 @@ jobs:
           
           docker push pmckl/action-terraform-module-updates:${{ steps.version.outputs.new_tag }}
           docker push pmckl/action-terraform-module-updates:latest
-          
+      - name: Patch action.yaml
+        runs: |
+          export IMG_VERSION="pmckl/action-terraform-module-updates:${{ steps.version.outputs.new_tag }}"
+          yq -e -i '.runs.image=env(IMG_VERSION)' action.yml
+      - name: Commit
+        run: |
+          git config --global user.name "GitHub Actions"
+          git add action.yml
+          git commit -m "(chore) updating image version in action.yml" || echo "No changes to commit"
+          git push origin HEAD:master
       - name: Generate release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
