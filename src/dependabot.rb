@@ -121,10 +121,8 @@ def update(source, credentials_repository, credentials_dependencies)
     )
     updated_deps.each do |upd_dep|
       if upd_dep.requirements[0][:source][:type] == "registry" then
-        print " - Update available for: #{upd_dep.requirements[0][:source][:module_identifier]} #{upd_dep.previous_version} -> #{upd_dep.version}\n"
         upd_str = "Update available for: #{upd_dep.requirements[0][:source][:module_identifier]} #{upd_dep.previous_version} -> #{upd_dep.version}"
       else
-        print " - Update available for: #{upd_dep.requirements[0][:source][:url]} #{upd_dep.previous_version} -> #{upd_dep.version}\n"
         upd_str = "Update available for: #{upd_dep.requirements[0][:source][:url]} #{upd_dep.previous_version} -> #{upd_dep.version}"
       end
       available_updates.push(upd_str)
@@ -135,6 +133,7 @@ end
 
 puts "  - Fetching dependency files for #{repo_name}"
 available_updates = []
+github_comment_body = "## Available updates for the following components used in this repository:\n\n"
 directory.split(":").each do |dir|
   puts "  - Checking #{dir} ..."
 
@@ -144,7 +143,15 @@ directory.split(":").each do |dir|
     directory: dir.strip,
     branch: target_branch,
   )
-  available_updates.push(update(source, credentials_repository, credentials_dependencies))
+  updates = update(source, credentials_repository, credentials_dependencies)
+  if(updates.length() > 0) then
+    github_comment_body << "### #{dir.strip}\n\n"
+    updates.each do |update|
+      github_comment_body << "- #{update}\n"
+    end
+    github_comment_body << "\n"
+  end
+  available_updates.push(updates)
 end
 if available_updates.join("") != "" then
   print "\n\n Updates available for the following:\n"
@@ -162,16 +169,16 @@ if available_updates.join("") != "" then
   if pr_comments.length > 0 then
     pr_comments.each do |comment|
       if comment[":user"][":login"] == "github-actions[bot]" then
-        if comment[":body"].start_with?(first_line) then
+        if comment[":body"].start_with?("## Available updates for the following components used in this repository:\n\n") then
           comment_id = comment[":id"]
         end
       end
     end
   end
   if comment_id > 0 then
-    client.update_comment(ENV["GITHUB_REPOSITORY"], comment_id, comment_body)
+    client.update_comment(ENV["GITHUB_REPOSITORY"], comment_id, github_comment_body)
   else
-    client.add_comment(ENV["GITHUB_REPOSITORY"], gh_context['event']['number'], comment_body)
+    client.add_comment(ENV["GITHUB_REPOSITORY"], gh_context['event']['number'], github_comment_body)
   end
   print available_updates.join("\n")
 end
