@@ -135,7 +135,7 @@ end
 
 puts "  - Fetching dependency files for #{repo_name}"
 available_updates = []
-directory.split("\n").each do |dir|
+directory.split(":").each do |dir|
   puts "  - Checking #{dir} ..."
 
   source = Dependabot::Source.new(

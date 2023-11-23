@@ -27,7 +27,7 @@ inputs:
     default: ${{ toJSON(github) }}
 runs:
   using: 'docker'
-  image: 'docker://pmckl/action-terraform-module-updates:v0.1.0'
+  image: 'Dockerfile'
 branding:
   icon: 'package'
   color: 'orange'
